@@ -1,7 +1,8 @@
-from PyQt5.QtWidgets import QAction, QMessageBox, QWidget
+from PyQt5.QtWidgets import QAction, QMessageBox, QWidget, QVBoxLayout, QDialog, QLineEdit, QPushButton
 from PyQt5.QtGui import QIcon
 from qgis.utils import iface
 from qgis.core import QgsApplication, QgsProject
+from .setup_dialog import SetupDialog
 
 edit_icon = QIcon(':/qt-project.org/qtgradienteditor/images/edit.png')
 info_icon = QIcon(':/qt-project.org/styles/commonstyle/images/fileinfo-16.png')
@@ -31,15 +32,8 @@ class ProjectSetupPlugin:
         menubar.removeAction(self.menu.menuAction())
 
     def showSetup(self):
-        self.iface.messageBar().pushMessage('Project Setup')
-        mb = QMessageBox()
-        mb.setText('Project Setup')
-        mb.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
-        return_val = mb.exec()
-        if return_val == QMessageBox.Ok:
-            self.iface.messageBar().pushMessage('Ok')
-        elif return_val == QMessageBox.Cancel:
-            self.iface.messageBar().pushMessage('Cancel')
-
+        dialog = SetupDialog()
+        dialog.exec()   
+           
     def showSources(self):
         self.iface.messageBar().pushMessage('Edit Sources')
