@@ -53,14 +53,26 @@ class SetupDialog(QDialog):
         self.add_button.clicked.connect(self.add_source)
         self.remove_button.clicked.connect(self.remove_source)
 
+        self.submit_layout = QHBoxLayout()
         self.submit_button = QPushButton('Ok')
         self.submit_button.clicked.connect(self.submit_values)
-        self.layout.addWidget(self.submit_button)
+        self.submit_layout.addWidget(self.submit_button)
 
         self.cancel_button = QPushButton('Cancel')
         self.cancel_button.clicked.connect(self.close)
-        self.layout.addWidget(self.cancel_button)
+        self.submit_layout.addWidget(self.cancel_button)
+        self.layout.addLayout(self.submit_layout)
 
+        self.HIDE_WIDGETS = [
+                            self.proj_num_label, 
+                            self.proj_num_box, 
+                            self.proj_name_label, 
+                            self.proj_name_box, 
+                            self.loc_label, 
+                            self.loc_box, 
+                            self.client_label, 
+                            self.client_box,
+                            ]
     def add_source(self):
         text = self.source_entry_box.text()
         if text:
@@ -78,3 +90,7 @@ class SetupDialog(QDialog):
 
     def submit_values(self):
         self.close()
+        
+    def hide_widgets(self):
+        for item in self.HIDE_WIDGETS:
+            item.hide()
