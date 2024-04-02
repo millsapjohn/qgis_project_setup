@@ -2,36 +2,16 @@ from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QPushButton, QLabel
 from PyQt5.QtGui import QIcon
 from qgis.utils import iface
 
-class SetupDialog(QDialog):
+class SourceDialog(QDialog):
     def __init__(self):
         super().__init__()
         self.iface = iface
         self.initUI()
 
     def initUI(self):
-        self.setWindowTitle('Project Setup')
+        self.setWindowTitle('Add/Remove Data Sources')
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
-
-        self.proj_num_label = QLabel('Project Number: ')
-        self.layout.addWidget(self.proj_num_label)
-        self.proj_num_box = QLineEdit()
-        self.layout.addWidget(self.proj_num_box)
-
-        self.proj_name_label = QLabel('Project Name: ')
-        self.layout.addWidget(self.proj_name_label)
-        self.proj_name_box = QLineEdit()
-        self.layout.addWidget(self.proj_name_box)
-
-        self.client_label = QLabel('Client: ')
-        self.layout.addWidget(self.client_label)
-        self.client_box = QLineEdit()
-        self.layout.addWidget(self.client_box)
-
-        self.loc_label = QLabel('Project Location: ')
-        self.layout.addWidget(self.loc_label)
-        self.loc_box = QLineEdit()
-        self.layout.addWidget(self.loc_box)
 
         self.source_label = QLabel('Data Sources: ')
         self.layout.addWidget(self.source_label)

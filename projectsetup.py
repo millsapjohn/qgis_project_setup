@@ -3,6 +3,7 @@ from PyQt5.QtGui import QIcon
 from qgis.utils import iface
 from qgis.core import QgsApplication, QgsProject
 from .setup_dialog import SetupDialog
+from .source_dialog import SourceDialog
 
 edit_icon = QIcon(':/qt-project.org/qtgradienteditor/images/edit.png')
 info_icon = QIcon(':/qt-project.org/styles/commonstyle/images/fileinfo-16.png')
@@ -36,4 +37,5 @@ class ProjectSetupPlugin:
         dialog.exec()   
            
     def showSources(self):
-        self.iface.messageBar().pushMessage('Edit Sources')
+        dialog = SourceDialog()
+        dialog.exec()
