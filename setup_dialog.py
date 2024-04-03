@@ -89,6 +89,13 @@ class SetupDialog(QDialog):
             self.iface.messageBar().pushMessage('No item selected')
 
     def submit_values(self):
+        self.proj_num = self.proj_num_box.text()
+        self.proj_name = self.proj_name_box.text()
+        self.loc = self.loc_box.text()
+        self.client = self.client_box.text()
+        self.sources = []
+        for i in range(self.source_list_box.count()):
+            self.sources.append(self.source_list_box.item(i).text())
         self.close()
         
     def hide_widgets(self):

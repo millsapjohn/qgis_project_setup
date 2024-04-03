@@ -20,11 +20,11 @@ class ProjectSetupPlugin:
 
         self.setupAction = QAction(edit_icon, "Project Setup...")
         self.iface.addPluginToMenu("Project Setup", self.setupAction)
-        self.setupAction.triggered.connect(self.showSetup)
+        self.setupAction.triggered.connect(self.projectSetup)
 
         self.sourceAction = QAction(info_icon, "Add Project Datasource...")
         self.iface.addPluginToMenu("Project Setup", self.sourceAction)
-        self.sourceAction.triggered.connect(self.showSources)
+        self.sourceAction.triggered.connect(self.projectSources)
 
     def unload(self):
         self.iface.removePluginMenu('Project Setup', self.setupAction)
@@ -32,10 +32,24 @@ class ProjectSetupPlugin:
         menubar = self.menu.parentWidget()
         menubar.removeAction(self.menu.menuAction())
 
-    def showSetup(self):
+    def projectSetup(self):
         dialog = SetupDialog()
-        dialog.exec()   
+        dialog.exec()
+        self.getValues(dialog)
+        for source in self.sources:
+            iface.messageBar().pushMessage(source)
            
-    def showSources(self):
+    def projectSources(self):
         dialog = SourceDialog()
         dialog.exec()
+        self.getValues(dialog)
+
+    def getValues(self, dialog):
+        self.proj_num = dialog.proj_num
+        self.proj_name = dialog.proj_name
+        self.client = dialog.client
+        self.loc = dialog.loc
+        self.sources = dialog.sources
+
+    def setVariables(self):
+        pass
