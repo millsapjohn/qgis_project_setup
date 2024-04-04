@@ -1,7 +1,7 @@
-from PyQt5.QtWidgets import QAction, QMessageBox, QWidget, QVBoxLayout, QDialog, QLineEdit, QPushButton
+from PyQt5.QtWidgets import QAction
 from PyQt5.QtGui import QIcon
 from qgis.utils import iface
-from qgis.core import QgsApplication, QgsProject
+from qgis.core import QgsApplication, QgsProject, QgsExpressionContextUtils
 from .setup_dialog import SetupDialog
 from .source_dialog import SourceDialog
 
@@ -36,13 +36,13 @@ class ProjectSetupPlugin:
         dialog = SetupDialog()
         dialog.exec()
         self.getValues(dialog)
-        for source in self.sources:
-            iface.messageBar().pushMessage(source)
+        self.setVariables()
            
     def projectSources(self):
         dialog = SourceDialog()
         dialog.exec()
         self.getValues(dialog)
+        self.setVariables()
 
     def getValues(self, dialog):
         self.proj_num = dialog.proj_num
@@ -52,4 +52,23 @@ class ProjectSetupPlugin:
         self.sources = dialog.sources
 
     def setVariables(self):
-        pass
+        project = QgsProject.instance()
+        if self.proj_num:
+            QgsExpressionContextUtils.setProjectVariable(project, 'project number', self.proj_num)
+        if self.proj_name:
+            QgsExpressionContextUtils.setProjectVariable(project, 'Project Name', self.proj_name)
+        if self.client:
+            QgsExpressionContextUtils.setProjectVariable(project, 'Project Client', self.client)
+        if self.loc:
+            QgsExpressionContextUtils.setProjectVariable(project, 'Project Location', self.loc)
+        if self.sources:
+            if QgsExpressionContextUtils.projectScope(project).variable('Project Data Sources'):
+                new_sources = []
+                for item in QgsExpressionContextUtils.projectScope(project).variable('Project Data Sources'):
+                    new_sources.append(item)
+                for item in self.sources:
+                    if item not in new_sources:
+                        new_sources.append(item)
+                QgsExpressionContextUtils.setProjectVariable(project, 'Project Data Sources', new_sources)
+            else:
+                QgsExpressionContextUtils.setProjectVariable(project, 'Project Data Sources', self.sources)
