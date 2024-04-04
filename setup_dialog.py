@@ -94,9 +94,9 @@ class SetupDialog(QDialog):
                             self.gpkg_label,
                             ]
     def getSaveFile(self):
-        self.filename_dialog = QFileDialog(caption='Specify Save Location: ')
+        self.filename_dialog = QFileDialog()
         self.filename_dialog.setDirectory(self.home_path)
-        self.filename = self.filename_dialog.getSaveFileName()[0]
+        self.filename = self.filename_dialog.getSaveFileName(self, 'Specify Save Location:', self.home_path, 'QGIS Project File (*.qgz)')[0]
         self.file_box.setText(self.filename)
         
     def add_source(self):
