@@ -1,9 +1,10 @@
 import os
+from shutil import copy
 from pathlib import Path
 from PyQt5.QtWidgets import QAction
 from PyQt5.QtGui import QIcon
 from qgis.utils import iface
-from qgis.core import QgsApplication, QgsProject, QgsExpressionContextUtils
+from qgis.core import QgsApplication, QgsProject, QgsExpressionContextUtils, QgsSettings
 from .setup_dialog import SetupDialog
 from .source_dialog import SourceDialog
 
@@ -17,7 +18,7 @@ class ProjectSetupPlugin:
         self.iface = iface
         self.home_path = os.path.expanduser('~')
         if QgsExpressionContextUtils.globalScope().variable('gpkg_path'):
-            self.gpkg_path = Path(QgsExpressionContextUtils.globalScope().variable('gpkg_path'))
+            self.gpkg_path = QgsExpressionContextUtils.globalScope().variable('gpkg_path')
         else:
             self.gpkg_path = os.path.expanduser('~')
 
@@ -70,6 +71,8 @@ class ProjectSetupPlugin:
             self.filename = project.writePath(self.filename)
             project.write(self.filename)       
             iface.mainWindow().setWindowTitle(QgsExpressionContextUtils.projectScope(project).variable('project_filename'))
+        if self.gpkg_templates:
+            pass
         if self.proj_num:
             QgsExpressionContextUtils.setProjectVariable(project, 'project_identifier', self.proj_num)
         if self.proj_name:
@@ -89,3 +92,16 @@ class ProjectSetupPlugin:
                 QgsExpressionContextUtils.setProjectVariable(project, 'Project Data Sources', new_sources)
             else:
                 QgsExpressionContextUtils.setProjectVariable(project, 'Project Data Sources', self.sources)
+
+    def copyTemplates(self):
+        for template in self.gpkg_templates:
+            basename = os.path.basename(template)
+            filename = os.path.join(self.gpkg_location, basename)
+            copy(template, filename)
+            # s = QgsSettings()
+            # use QgsAbstractDatabaseProviderConnection to establish the connection
+            # use QgsSettings.setValue to add the connection to settings
+            # s.value('providers/ogr/GPKG/connections/Template.gpkg/path') = path_to_gpkg
+            iface.mainWindow().findChildren(QWidget, 'Browser')[0].refresh()
+            # add list of connections to project variables
+            # on project load, remove old connections, add correct ones

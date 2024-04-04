@@ -143,8 +143,8 @@ class SetupDialog(QDialog):
     # get gpkg templates if applicable
     def getGpkgTemplates(self):
         self.template_dialog = QFileDialog()
-        self.gpkg_templates = self.template_dialog.getOpenFileNames(self, 'Select GeoPackage Template(s):',)
-        self.gpkg_template_location_box.setText(self.gpkg_templates)
+        self.gpkg_templates = self.template_dialog.getOpenFileNames(self, 'Select GeoPackage Template(s):', self.gpkg_path, 'GeoPackages (*.gpkg)')[0]
+        self.gpkg_template_location_box.setText(str(self.gpkg_templates))
 
     # slot to control the visibility of gpkg UI elements
     def setGpkgVisibility(self, state):
