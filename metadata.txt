@@ -1,8 +1,15 @@
 [general]
 name=Project Setup
-description=sets up a QGIS project to my personal specs, including project variables and template geopackages.
-version=0.1
+description=sets up a QGIS project to my personal specs.
+about=Setup includes setting project variables, Kart repos, and accessing template geopackages.
+version=0.5
 qgisMinimumVersion=3.0
+tracker=https://github.com/millsapjohn/qgis_project_setup/issues
+repository=https://github.com/millsapjohn/gqis_project_setup
 author=John Millsap
 email=jmillsapengineer@gmail.com
 icon=':/qtproject.org/qtgradienteditor/images/edit.png'
+
+deprecated=False
+
+qgisMaximumVersion=3.99
