@@ -33,6 +33,7 @@ class ProjectSetupPlugin:
         self.iface.addPluginToMenu("Project Setup", self.sourceAction)
         self.sourceAction.triggered.connect(self.projectSources)
 
+    #TODO this doesn't work correctly
     def unload(self):
         self.iface.removePluginMenu('Project Setup', self.setupAction)
         self.iface.removePluginMenu('Project Setup', self.sourceAction)
@@ -61,6 +62,7 @@ class ProjectSetupPlugin:
         self.loc = dialog.loc
         self.sources = dialog.sources
         self.gpkg_location = dialog.gpkg_location
+        self.gpkg_templates = dialog.gpkg_templates
 
     def setVariables(self):
         project = QgsProject.instance()
