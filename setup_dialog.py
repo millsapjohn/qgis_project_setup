@@ -1,17 +1,30 @@
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QPushButton, QLabel, QListWidget, QHBoxLayout
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QPushButton, QLabel, QListWidget, QHBoxLayout, QFileDialog
 from PyQt5.QtGui import QIcon
 from qgis.utils import iface
 
 class SetupDialog(QDialog):
-    def __init__(self):
+    def __init__(self, gpkg_path, home_path):
         super().__init__()
         self.iface = iface
+        self.gpkg_path = gpkg_path
+        self.home_path = home_path
+        self.success = False
         self.initUI()
 
     def initUI(self):
         self.setWindowTitle('Project Setup')
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
+
+        self.proj_file_loc_label = QLabel('Project Save Location: ')
+        self.layout.addWidget(self.proj_file_loc_label)
+        self.file_layout = QHBoxLayout()
+        self.file_box = QLineEdit('Save File Location: ')
+        self.file_layout.addWidget(self.file_box)
+        self.file_button = QPushButton(text='...')
+        self.file_button.clicked.connect(self.getSaveFile)
+        self.file_layout.addWidget(self.file_button)
+        self.layout.addLayout(self.file_layout)
 
         self.proj_num_label = QLabel('Project Number: ')
         self.layout.addWidget(self.proj_num_label)
@@ -32,6 +45,9 @@ class SetupDialog(QDialog):
         self.layout.addWidget(self.loc_label)
         self.loc_box = QLineEdit()
         self.layout.addWidget(self.loc_box)
+
+        self.gpkg_label = QLabel('Template GeoPackages: ')
+        self.layout.addWidget(self.gpkg_label)
 
         self.source_label = QLabel('Data Sources: ')
         self.layout.addWidget(self.source_label)
@@ -64,6 +80,9 @@ class SetupDialog(QDialog):
         self.layout.addLayout(self.submit_layout)
 
         self.HIDE_WIDGETS = [
+                            self.proj_file_loc_label,
+                            self.file_box,
+                            self.file_button,
                             self.proj_num_label, 
                             self.proj_num_box, 
                             self.proj_name_label, 
@@ -72,7 +91,14 @@ class SetupDialog(QDialog):
                             self.loc_box, 
                             self.client_label, 
                             self.client_box,
+                            self.gpkg_label,
                             ]
+    def getSaveFile(self):
+        self.filename_dialog = QFileDialog(caption='Specify Save Location: ')
+        self.filename_dialog.setDirectory(self.home_path)
+        self.filename = self.filename_dialog.getSaveFileName()[0]
+        self.file_box.setText(self.filename)
+        
     def add_source(self):
         text = self.source_entry_box.text()
         if text:
@@ -96,6 +122,7 @@ class SetupDialog(QDialog):
         self.sources = []
         for i in range(self.source_list_box.count()):
             self.sources.append(self.source_list_box.item(i).text())
+        self.success = True
         self.close()
         
     def hide_widgets(self):

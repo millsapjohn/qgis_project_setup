@@ -1,3 +1,5 @@
+import os
+from pathlib import Path
 from PyQt5.QtWidgets import QAction
 from PyQt5.QtGui import QIcon
 from qgis.utils import iface
@@ -13,6 +15,11 @@ class ProjectSetupPlugin:
         super().__init__()
         project = QgsProject.instance()
         self.iface = iface
+        self.home_path = os.path.expanduser('~')
+        if QgsExpressionContextUtils.globalScope().variable('gpkg_path'):
+            self.gpkg_path = Path(QgsExpressionContextUtils.globalScope().variable('gpkg_path'))
+        else:
+            self.gpkg_path = os.path.expanduser('~')
 
     def initGui(self):
         self.menu = iface.pluginMenu().addMenu('Project Setup')
@@ -33,18 +40,21 @@ class ProjectSetupPlugin:
         menubar.removeAction(self.menu.menuAction())
 
     def projectSetup(self):
-        dialog = SetupDialog()
+        dialog = SetupDialog(self.gpkg_path, self.home_path)
         dialog.exec()
-        self.getValues(dialog)
-        self.setVariables()
+        if dialog.success == True:
+            self.getValues(dialog)
+            self.setVariables()
            
     def projectSources(self):
-        dialog = SourceDialog()
+        dialog = SourceDialog(self.gpkg_path, self.home_path)
         dialog.exec()
-        self.getValues(dialog)
-        self.setVariables()
+        if dialog.success == True:
+            self.getValues(dialog)
+            self.setVariables()
 
     def getValues(self, dialog):
+        self.filename = dialog.filename
         self.proj_num = dialog.proj_num
         self.proj_name = dialog.proj_name
         self.client = dialog.client
@@ -53,18 +63,22 @@ class ProjectSetupPlugin:
 
     def setVariables(self):
         project = QgsProject.instance()
+        if self.filename:
+            self.filename = project.writePath(self.filename)
+            project.write(self.filename)       
+            iface.mainWindow().setWindowTitle(QgsExpressionContextUtils.projectScope(project).variable('project_filename'))
         if self.proj_num:
-            QgsExpressionContextUtils.setProjectVariable(project, 'project number', self.proj_num)
+            QgsExpressionContextUtils.setProjectVariable(project, 'project_identifier', self.proj_num)
         if self.proj_name:
-            QgsExpressionContextUtils.setProjectVariable(project, 'Project Name', self.proj_name)
+            QgsExpressionContextUtils.setProjectVariable(project, 'project_title', self.proj_name)
         if self.client:
-            QgsExpressionContextUtils.setProjectVariable(project, 'Project Client', self.client)
+            QgsExpressionContextUtils.setProjectVariable(project, 'project_client', self.client)
         if self.loc:
-            QgsExpressionContextUtils.setProjectVariable(project, 'Project Location', self.loc)
+            QgsExpressionContextUtils.setProjectVariable(project, 'project_location', self.loc)
         if self.sources:
             if QgsExpressionContextUtils.projectScope(project).variable('Project Data Sources'):
                 new_sources = []
-                for item in QgsExpressionContextUtils.projectScope(project).variable('Project Data Sources'):
+                for item in QgsExpressionContextUtils.projectScope(project).variable('project_sources'):
                     new_sources.append(item)
                 for item in self.sources:
                     if item not in new_sources:
