@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QPushButton, QLabel, QListWidget, QHBoxLayout, QFileDialog
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QPushButton, QLabel, QListWidget, QHBoxLayout, QFileDialog, QCheckBox
 from PyQt5.QtGui import QIcon
 from qgis.utils import iface
 
@@ -26,6 +26,35 @@ class SetupDialog(QDialog):
         self.file_layout.addWidget(self.file_button)
         self.layout.addLayout(self.file_layout)
 
+        self.gpkg_template_checkbox = QCheckBox('Import Template GeoPackages?')
+        self.layout.addWidget(self.gpkg_template_checkbox)
+        self.gpkg_template_checkbox.stateChanged.connect(self.setGpkgVisibility)
+
+        self.gpkg_layout = QVBoxLayout()
+        self.gpkg_template_layout = QHBoxLayout()
+        self.gpkg_template_label = QLabel('GeoPackage Template(s): ')
+        self.gpkg_template_layout.addWidget(self.gpkg_template_label)
+        self.gpkg_template_location_box = QLineEdit('GeoPackage Template(s): ')
+        self.gpkg_template_layout.addWidget(self.gpkg_template_location_box)
+        self.gpkg_template_location_box.setDisabled(True)
+        self.gpkg_template_button = QPushButton(text='...')
+        self.gpkg_template_button.clicked.connect(self.getGpkgTemplates)
+        self.gpkg_template_layout.addWidget(self.gpkg_template_button)
+        self.gpkg_template_button.setDisabled(True)
+        self.gpkg_layout.addLayout(self.gpkg_template_layout)
+        self.gpkg_save_layout = QHBoxLayout()
+        self.gpkg_location_label = QLabel('GeoPackage Save Location: ')
+        self.gpkg_save_layout.addWidget(self.gpkg_location_label)
+        self.gpkg_location_box = QLineEdit('GeoPackage Save Location: ')
+        self.gpkg_save_layout.addWidget(self.gpkg_location_box)
+        self.gpkg_location_box.setDisabled(True)
+        self.gpkg_location_button = QPushButton(text='...')
+        self.gpkg_location_button.clicked.connect(self.getGpkgLocation)
+        self.gpkg_save_layout.addWidget(self.gpkg_location_button)
+        self.gpkg_location_button.setDisabled(True)
+        self.gpkg_layout.addLayout(self.gpkg_save_layout)
+        self.layout.addLayout(self.gpkg_layout)
+
         self.proj_num_label = QLabel('Project Number: ')
         self.layout.addWidget(self.proj_num_label)
         self.proj_num_box = QLineEdit()
@@ -45,9 +74,6 @@ class SetupDialog(QDialog):
         self.layout.addWidget(self.loc_label)
         self.loc_box = QLineEdit()
         self.layout.addWidget(self.loc_box)
-
-        self.gpkg_label = QLabel('Template GeoPackages: ')
-        self.layout.addWidget(self.gpkg_label)
 
         self.source_label = QLabel('Data Sources: ')
         self.layout.addWidget(self.source_label)
@@ -83,6 +109,13 @@ class SetupDialog(QDialog):
                             self.proj_file_loc_label,
                             self.file_box,
                             self.file_button,
+                            self.gpkg_template_checkbox,
+                            self.gpkg_template_label,
+                            self.gpkg_template_location_box,
+                            self.gpkg_template_button,
+                            self.gpkg_location_label,
+                            self.gpkg_location_box,
+                            self.gpkg_location_button,
                             self.proj_num_label, 
                             self.proj_num_box, 
                             self.proj_name_label, 
@@ -91,13 +124,28 @@ class SetupDialog(QDialog):
                             self.loc_box, 
                             self.client_label, 
                             self.client_box,
-                            self.gpkg_label,
                             ]
     def getSaveFile(self):
         self.filename_dialog = QFileDialog()
-        self.filename_dialog.setDirectory(self.home_path)
         self.filename = self.filename_dialog.getSaveFileName(self, 'Specify Save Location:', self.home_path, 'QGIS Project File (*.qgz)')[0]
         self.file_box.setText(self.filename)
+
+    def getGpkgTemplates(self):
+        self.template_dialog = QFileDialog()
+        self.gpkg_templates = self.template_dialog.getOpenFileNames(self, 'Select GeoPackage Template(s):',)
+        self.gpkg_template_location_box.setText(self.gpkg_templates)
+
+    def setGpkgVisibility(self, state):
+        enabled = state == 2
+        self.gpkg_template_location_box.setEnabled(enabled)
+        self.gpkg_template_button.setEnabled(enabled)
+        self.gpkg_location_box.setEnabled(enabled)
+        self.gpkg_location_button.setEnabled(enabled)
+
+    def getGpkgLocation(self):
+        self.gpkg_location_dialog = QFileDialog()
+        self.gpkg_location = self.gpkg_location_dialog.getExistingDirectory(self, 'Specify GeoPackage Save Location:', self.home_path)
+        self.gpkg_location_box.setText(self.gpkg_location)
         
     def add_source(self):
         text = self.source_entry_box.text()

@@ -60,6 +60,7 @@ class ProjectSetupPlugin:
         self.client = dialog.client
         self.loc = dialog.loc
         self.sources = dialog.sources
+        self.gpkg_location = dialog.gpkg_location
 
     def setVariables(self):
         project = QgsProject.instance()
