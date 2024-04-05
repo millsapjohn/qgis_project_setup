@@ -4,7 +4,8 @@ from pathlib import Path
 from PyQt5.QtWidgets import QAction
 from PyQt5.QtGui import QIcon
 from qgis.utils import iface
-from qgis.core import QgsApplication, QgsProject, QgsExpressionContextUtils, QgsSettings
+from qgis.core import QgsApplication, QgsProject, QgsExpressionContextUtils, QgsProviderRegistry, QgsVectorLayer
+from osgeo import ogr
 from .setup_dialog import SetupDialog
 from .source_dialog import SourceDialog
 
@@ -45,8 +46,14 @@ class ProjectSetupPlugin:
         dialog = SetupDialog(self.gpkg_path, self.home_path)
         dialog.exec()
         if dialog.success == True:
-            self.getValues(dialog)
-            self.setVariables()
+            if not dialog.filename:
+                iface.messageBar().pushMessage('No filename specified')
+            elif dialog.gpkg_templates and not dialog.gpkg_location:
+                iface.messageBar().pushMessage('No GeoPackage save location specified')
+            else:
+                self.getValues(dialog)
+                self.setVariables()
+                QgsProject.instance().write()
            
     def projectSources(self):
         dialog = SourceDialog(self.gpkg_path, self.home_path)
@@ -56,14 +63,22 @@ class ProjectSetupPlugin:
             self.setVariables()
 
     def getValues(self, dialog):
-        self.filename = dialog.filename
-        self.proj_num = dialog.proj_num
-        self.proj_name = dialog.proj_name
-        self.client = dialog.client
-        self.loc = dialog.loc
-        self.sources = dialog.sources
-        self.gpkg_location = dialog.gpkg_location
-        self.gpkg_templates = dialog.gpkg_templates
+        if dialog.filename:
+            self.filename = dialog.filename
+        if dialog.proj_num:
+            self.proj_num = dialog.proj_num
+        if dialog.proj_name:
+            self.proj_name = dialog.proj_name
+        if dialog.client:
+            self.client = dialog.client
+        if dialog.loc:
+            self.loc = dialog.loc
+        if dialog.sources:
+            self.sources = dialog.sources
+        if dialog.gpkg_location:
+            self.gpkg_location = dialog.gpkg_location
+        if dialog.gpkg_templates:
+            self.gpkg_templates = dialog.gpkg_templates
 
     def setVariables(self):
         project = QgsProject.instance()
@@ -72,7 +87,7 @@ class ProjectSetupPlugin:
             project.write(self.filename)       
             iface.mainWindow().setWindowTitle(QgsExpressionContextUtils.projectScope(project).variable('project_filename'))
         if self.gpkg_templates:
-            pass
+            self.copyTemplates()
         if self.proj_num:
             QgsExpressionContextUtils.setProjectVariable(project, 'project_identifier', self.proj_num)
         if self.proj_name:
@@ -94,14 +109,18 @@ class ProjectSetupPlugin:
                 QgsExpressionContextUtils.setProjectVariable(project, 'Project Data Sources', self.sources)
 
     def copyTemplates(self):
+        md = QgsProviderRegistry.instance().providerMetadata('ogr')
         for template in self.gpkg_templates:
             basename = os.path.basename(template)
+            if self.proj_num:
+                basename = self.proj_num + "_" + basename
             filename = os.path.join(self.gpkg_location, basename)
             copy(template, filename)
-            # s = QgsSettings()
-            # use QgsAbstractDatabaseProviderConnection to establish the connection
-            # use QgsSettings.setValue to add the connection to settings
-            # s.value('providers/ogr/GPKG/connections/Template.gpkg/path') = path_to_gpkg
-            iface.mainWindow().findChildren(QWidget, 'Browser')[0].refresh()
+            layer = [l.GetName() for l in ogr.Open(filename)][0]
+            layer_path = filename + "|layername={layer}"
+            vl = QgsVectorLayer(layer_path, basename, 'ogr')
+            conn = md.createConnection(vl.dataProvider().dataSourceUri(), {})
+            md.saveConnection(conn, basename)
+        iface.reloadConnections()
             # add list of connections to project variables
             # on project load, remove old connections, add correct ones

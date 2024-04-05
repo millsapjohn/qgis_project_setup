@@ -137,7 +137,7 @@ class SetupDialog(QDialog):
     # get save location for overall save file
     def getSaveFile(self):
         self.filename_dialog = QFileDialog()
-        self.filename = self.filename_dialog.getSaveFileName(self, 'Specify Save Location:', self.home_path, 'QGIS Project File (*.qgz)')[0]
+        self.filename = self.filename_dialog.getSaveFileName(self, 'Specify Save File:', self.home_path, 'QGIS Project File (*.qgz)')[0]
         self.file_box.setText(self.filename)
 
     # get gpkg templates if applicable
