@@ -86,29 +86,33 @@ class ProjectSetupPlugin:
             self.filename = project.writePath(self.filename)
             project.write(self.filename)       
             iface.mainWindow().setWindowTitle(QgsExpressionContextUtils.projectScope(project).variable('project_filename'))
+        project = QgsProject().instance()
         if self.gpkg_templates:
             self.copyTemplates()
+            QgsExpressionContextUtils.setProjectVariable(project, 'project_gpkg_connections', self.gpkg_connections)
         if self.proj_num:
-            QgsExpressionContextUtils.setProjectVariable(project, 'project_identifier', self.proj_num)
+            QgsExpressionContextUtils.setProjectVariable(project, 'project_number', self.proj_num)
         if self.proj_name:
-            QgsExpressionContextUtils.setProjectVariable(project, 'project_title', self.proj_name)
+            QgsExpressionContextUtils.setProjectVariable(project, 'project_name', self.proj_name)
         if self.client:
             QgsExpressionContextUtils.setProjectVariable(project, 'project_client', self.client)
         if self.loc:
             QgsExpressionContextUtils.setProjectVariable(project, 'project_location', self.loc)
         if self.sources:
-            if QgsExpressionContextUtils.projectScope(project).variable('Project Data Sources'):
+            if QgsExpressionContextUtils.projectScope(project).variable('project_sources'):
                 new_sources = []
                 for item in QgsExpressionContextUtils.projectScope(project).variable('project_sources'):
                     new_sources.append(item)
                 for item in self.sources:
                     if item not in new_sources:
                         new_sources.append(item)
-                QgsExpressionContextUtils.setProjectVariable(project, 'Project Data Sources', new_sources)
+                QgsExpressionContextUtils.setProjectVariable(project, 'project_sources', new_sources)
             else:
-                QgsExpressionContextUtils.setProjectVariable(project, 'Project Data Sources', self.sources)
+                QgsExpressionContextUtils.setProjectVariable(project, 'project_sources', self.sources)
+        project.write()
 
     def copyTemplates(self):
+        self.gpkg_connections = {}
         md = QgsProviderRegistry.instance().providerMetadata('ogr')
         for template in self.gpkg_templates:
             basename = os.path.basename(template)
@@ -121,6 +125,5 @@ class ProjectSetupPlugin:
             vl = QgsVectorLayer(layer_path, basename, 'ogr')
             conn = md.createConnection(vl.dataProvider().dataSourceUri(), {})
             md.saveConnection(conn, basename)
+            self.gpkg_connections[basename] = str(filename)
         iface.reloadConnections()
-            # add list of connections to project variables
-            # on project load, remove old connections, add correct ones
