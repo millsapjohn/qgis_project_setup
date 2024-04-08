@@ -114,7 +114,7 @@ class SetupDialog(QDialog):
         self.layout.addLayout(self.submit_layout)
 
         # list of elements to hide in the SourceDialog subclass - easier to keep here where I'm actually creating the elements
-        self.HIDE_WIDGETS = [
+        self.HIDE_SOURCE_WIDGETS = [
                             self.proj_file_loc_label,
                             self.file_box,
                             self.file_button,
@@ -188,6 +188,6 @@ class SetupDialog(QDialog):
         self.close()
         
     # this function is inherited by the subclass to hide UI elements not used when only adding data sources
-    def hide_widgets(self):
-        for item in self.HIDE_WIDGETS:
+    def hide_source_widgets(self):
+        for item in self.HIDE_SOURCE_WIDGETS:
             item.hide()

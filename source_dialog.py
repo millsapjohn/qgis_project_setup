@@ -12,4 +12,4 @@ class SourceDialog(SetupDialog):
     # inherits from the SetupDialog class and removes unnecessary elements. Inheritance the other way wasn't working.
     def updateUI(self):
         self.setWindowTitle('Add/Remove Data Sources')
-        self.hide_widgets()
+        self.hide_source_widgets()
