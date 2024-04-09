@@ -94,22 +94,24 @@ class ProjectSetupPlugin:
         dialog.exec()
         if dialog.success == True:
             self.getConnections(dialog)
+            self.setConnections()
+            project.write()
 
     def getConnections(self, dialog):
         project = QgsProject.instance()
         md = QgsProviderRegistry.instance().providerMetadata('ogr')
-        conn_str = ""
+        self.conn_str = ""
         if dialog.gpkg_connections != []:
             self.gpkg_connections = dialog.gpkg_connections
             for item in self.gpkg_connections:
                 conn = md.connections()[item]
                 path = conn.uri()
-                conn_str = conn_str + item + ";" + path + ";"
-            # error happening here - why is it not writing this variable correctly?
-            QgsExpressionContextUtils.projectScope(project).setVariable('project_gpkg_connections', conn_str)
-        else:
-            QgsExpressionContextUtils.projectScope(project).setVariable('project_gpkg_connections', "")
-        project.write()
+                self.conn_str = self.conn_str + item + ";" + path + ";"
+
+    def setConnections(self):
+        project = QgsProject.instance()
+        if self.conn_str:
+            QgsExpressionContextUtils.setProjectVariable(project, 'project_gpkg_connections', self.conn_str)
 
     def getValues(self, dialog):
         if dialog.filename:
