@@ -8,6 +8,7 @@ from qgis.core import QgsApplication, QgsProject, QgsExpressionContextUtils, Qgs
 from osgeo import ogr
 from .setup_dialog import SetupDialog
 from .source_dialog import SourceDialog
+from .connection_dialog import ConnectionDialog
 
 edit_icon = QIcon(':/qt-project.org/qtgradienteditor/images/edit.png')
 info_icon = QIcon(':/qt-project.org/styles/commonstyle/images/fileinfo-16.png')
@@ -24,9 +25,6 @@ class ProjectSetupPlugin:
             self.gpkg_path = os.path.expanduser('~')
 
     def initGui(self):
-        self.menu = iface.pluginMenu().addMenu('Project Setup')
-        self.menu.setObjectName('project_setup_menu')
-
         self.setupAction = QAction(edit_icon, "Project Setup...")
         self.iface.addPluginToMenu("Project Setup", self.setupAction)
         self.setupAction.triggered.connect(self.projectSetup)
@@ -35,12 +33,17 @@ class ProjectSetupPlugin:
         self.iface.addPluginToMenu("Project Setup", self.sourceAction)
         self.sourceAction.triggered.connect(self.projectSources)
 
-    #TODO this doesn't work correctly
+        self.connectionAction = QAction(info_icon, 'Add Persistent GeoPackage Connections...')
+        self.iface.addPluginToMenu("Project Setup", self.connectionAction)
+        self.connectionAction.triggered.connect(self.projectConnections)
+
     def unload(self):
         self.iface.removePluginMenu('Project Setup', self.setupAction)
         self.iface.removePluginMenu('Project Setup', self.sourceAction)
-        menubar = self.menu.parentWidget()
-        menubar.removeAction(self.menu.menuAction())
+        self.iface.removePluginMenu('Project Setup', self.connectionAction)
+        del self.setupAction
+        del self.sourceAction
+        del self.connectionAction
 
     def projectSetup(self):
         dialog = SetupDialog(self.gpkg_path, self.home_path)
@@ -61,6 +64,25 @@ class ProjectSetupPlugin:
         if dialog.success == True:
             self.getValues(dialog)
             self.setVariables()
+
+    def projectConnections(self):
+        dialog = ConnectionDialog()
+        dialog.exec()
+        if dialog.success == True:
+            self.getConnections(dialog)
+
+    def getConnections(self, dialog):
+        project = QgsProject.instance()
+        if dialog.gpkg_connections:
+            self.gpkg_connections = dialog.gpkg_connections
+        else:
+            pass
+        if not QgsExpressionContextUtils.projectScope(project).variable('project_gpkg_connections'):
+            QgsExpressionContextUtils.projectScope(project).setVariable('project_gpkg_connections', self.gpkg_connections)
+        else:
+            conn_str = QgsExpressionContextUtils.projectScope(project).variable('project_gpkg_connections')
+            conn_str.append(self.gpkg_connections)
+            QgsExpressionContextUtils.projectScope(project).setVariable('project_gpkg_connections', conn_str)
 
     def getValues(self, dialog):
         if dialog.filename:
@@ -112,7 +134,7 @@ class ProjectSetupPlugin:
         project.write()
 
     def copyTemplates(self):
-        self.gpkg_connections = {}
+        self.gpkg_connections = ""
         md = QgsProviderRegistry.instance().providerMetadata('ogr')
         for template in self.gpkg_templates:
             basename = os.path.basename(template)
@@ -125,5 +147,5 @@ class ProjectSetupPlugin:
             vl = QgsVectorLayer(layer_path, basename, 'ogr')
             conn = md.createConnection(vl.dataProvider().dataSourceUri(), {})
             md.saveConnection(conn, basename)
-            self.gpkg_connections[basename] = str(filename)
+            self.gpkg_connections.append(basename + ";" + filename + ";")
         iface.reloadConnections()
