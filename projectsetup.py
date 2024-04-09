@@ -12,6 +12,8 @@ from .connection_dialog import ConnectionDialog
 
 edit_icon = QIcon(':/qt-project.org/qtgradienteditor/images/edit.png')
 info_icon = QIcon(':/qt-project.org/styles/commonstyle/images/fileinfo-16.png')
+connect_icon = QIcon(':/images/themes/default/mIconConnect.svg')
+file_icon = QIcon(':/images/themes/default/mActionFileSave.svg')
 
 class ProjectSetupPlugin:
     def __init__(self, iface):
@@ -26,27 +28,32 @@ class ProjectSetupPlugin:
 
     def initGui(self):
         self.setupAction = QAction(edit_icon, "Project Setup...")
-        self.iface.addPluginToMenu("Project Setup", self.setupAction)
+        self.iface.addPluginToMenu("Manage Project", self.setupAction)
         self.setupAction.triggered.connect(self.projectSetup)
 
-        self.sourceAction = QAction(info_icon, "Add Project Datasource...")
-        self.iface.addPluginToMenu("Project Setup", self.sourceAction)
+        self.sourceAction = QAction(info_icon, "Manage Project Datasources...")
+        self.iface.addPluginToMenu("Manage Project", self.sourceAction)
         self.sourceAction.triggered.connect(self.projectSources)
 
-        self.connectionAction = QAction(info_icon, 'Add Persistent GeoPackage Connections...')
-        self.iface.addPluginToMenu("Project Setup", self.connectionAction)
+        self.connectionAction = QAction(connect_icon, 'Manage Persistent GeoPackage Connections...')
+        self.iface.addPluginToMenu("Manage Project", self.connectionAction)
         self.connectionAction.triggered.connect(self.projectConnections)
 
     def unload(self):
-        self.iface.removePluginMenu('Project Setup', self.setupAction)
-        self.iface.removePluginMenu('Project Setup', self.sourceAction)
-        self.iface.removePluginMenu('Project Setup', self.connectionAction)
+        self.iface.removePluginMenu('Manage Project', self.setupAction)
+        self.iface.removePluginMenu('Manage Project', self.sourceAction)
+        self.iface.removePluginMenu('Manage Project', self.connectionAction)
         del self.setupAction
         del self.sourceAction
         del self.connectionAction
 
     def projectSetup(self):
-        dialog = SetupDialog(self.gpkg_path, self.home_path)
+        project = QgsProject.instance()
+        if QgsExpressionContextUtils.projectScope(project).variable('project_sources'):
+            curr_sources = QgsExpressionContextUtils.projectScope(project).variable('project_sources').split(";")
+        else:
+            curr_sources = []
+        dialog = SetupDialog(self.gpkg_path, self.home_path, curr_sources)
         dialog.exec()
         if dialog.success == True:
             if not dialog.filename:
@@ -59,14 +66,24 @@ class ProjectSetupPlugin:
                 QgsProject.instance().write()
            
     def projectSources(self):
-        dialog = SourceDialog(self.gpkg_path, self.home_path)
+        project = QgsProject.instance()
+        if QgsExpressionContextUtils.projectScope(project).variable('project_sources'):
+            curr_sources = QgsExpressionContextUtils.projectScope(project).variable('project_sources').split(";")
+        else:
+            curr_sources = []
+        dialog = SourceDialog(self.gpkg_path, self.home_path, curr_sources)
         dialog.exec()
         if dialog.success == True:
-            self.getValues(dialog)
-            self.setVariables()
+            self.getSources(dialog)
+            self.setSources()
+            project.write()
 
     def projectConnections(self):
-        dialog = ConnectionDialog()
+        md = QgsProviderRegistry.instance().providerMetadata('ogr')
+        curr_conn = []
+        for item in md.connections():
+            curr_conn.append(item)
+        dialog = ConnectionDialog(curr_conn)
         dialog.exec()
         if dialog.success == True:
             self.getConnections(dialog)
@@ -102,6 +119,10 @@ class ProjectSetupPlugin:
         if dialog.gpkg_templates:
             self.gpkg_templates = dialog.gpkg_templates
 
+    def getSources(self, dialog):
+        if dialog.sources:
+            self.sources = dialog.sources
+
     def setVariables(self):
         project = QgsProject.instance()
         if self.filename:
@@ -121,17 +142,13 @@ class ProjectSetupPlugin:
         if self.loc:
             QgsExpressionContextUtils.setProjectVariable(project, 'project_location', self.loc)
         if self.sources:
-            if QgsExpressionContextUtils.projectScope(project).variable('project_sources'):
-                new_sources = []
-                for item in QgsExpressionContextUtils.projectScope(project).variable('project_sources'):
-                    new_sources.append(item)
-                for item in self.sources:
-                    if item not in new_sources:
-                        new_sources.append(item)
-                QgsExpressionContextUtils.setProjectVariable(project, 'project_sources', new_sources)
-            else:
                 QgsExpressionContextUtils.setProjectVariable(project, 'project_sources', self.sources)
         project.write()
+
+    def setSources(self):
+        project = QgsProject.instance()
+        if self.sources:
+            QgsExpressionContextUtils.setProjectVariable(project, 'project_sources', self.sources)
 
     def copyTemplates(self):
         self.gpkg_connections = ""
@@ -147,5 +164,5 @@ class ProjectSetupPlugin:
             vl = QgsVectorLayer(layer_path, basename, 'ogr')
             conn = md.createConnection(vl.dataProvider().dataSourceUri(), {})
             md.saveConnection(conn, basename)
-            self.gpkg_connections.append(basename + ";" + filename + ";")
+            self.gpkg_connections = self.gpkg_connections + basename + ";" + filename + ";"
         iface.reloadConnections()

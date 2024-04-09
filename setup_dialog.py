@@ -3,11 +3,12 @@ from PyQt5.QtGui import QIcon
 from qgis.utils import iface
 
 class SetupDialog(QDialog):
-    def __init__(self, gpkg_path, home_path):
+    def __init__(self, gpkg_path, home_path, curr_sources):
         super().__init__()
         self.iface = iface
         self.gpkg_path = gpkg_path
         self.home_path = home_path
+        self.curr_sources = curr_sources
         self.success = False
         self.initUI()
 
@@ -88,6 +89,9 @@ class SetupDialog(QDialog):
         self.source_label = QLabel('Data Sources: ')
         self.layout.addWidget(self.source_label)
         self.source_list_box = QListWidget()
+        for item in self.curr_sources:
+            if item != "":
+                self.source_list_box.addItem(item)
         self.source_entry_box = QLineEdit()
         self.source_entry_box.setPlaceholderText('Enter New Data Source...')
         self.add_button = QPushButton(QIcon(':/qt-project.org/assistant/images/win/plus.png'), '')
@@ -181,9 +185,10 @@ class SetupDialog(QDialog):
         self.proj_name = self.proj_name_box.text()
         self.loc = self.loc_box.text()
         self.client = self.client_box.text()
-        self.sources = []
+        self.sources = ""
         for i in range(self.source_list_box.count()):
-            self.sources.append(self.source_list_box.item(i).text())
+            if self.source_list_box.item(i).text() != "":
+                self.sources = self.sources + self.source_list_box.item(i).text() + ";"
         self.success = True
         self.close()
         
