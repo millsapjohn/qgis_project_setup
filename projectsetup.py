@@ -79,27 +79,37 @@ class ProjectSetupPlugin:
             project.write()
 
     def projectConnections(self):
+        project = QgsProject.instance()
         md = QgsProviderRegistry.instance().providerMetadata('ogr')
-        curr_conn = []
+        self.curr_conn = []
+        self.saved_conn = []
+        if QgsExpressionContextUtils.projectScope(project).variable('project_gpkg_connections'):
+            saved_conn_raw = QgsExpressionContextUtils.projectScope(project).variable('project_gpkg_connections').split(";")
+            self.saved_conn = saved_conn_raw[0::2] # get every other item in the list
+            self.saved_conn = [x for x in self.saved_conn if x]
         for item in md.connections():
-            curr_conn.append(item)
-        dialog = ConnectionDialog(curr_conn)
+            if item not in self.saved_conn:
+                self.curr_conn.append(item)
+        dialog = ConnectionDialog(self.curr_conn, self.saved_conn)
         dialog.exec()
         if dialog.success == True:
             self.getConnections(dialog)
 
     def getConnections(self, dialog):
         project = QgsProject.instance()
-        if dialog.gpkg_connections:
+        md = QgsProviderRegistry.instance().providerMetadata('ogr')
+        conn_str = ""
+        if dialog.gpkg_connections != []:
             self.gpkg_connections = dialog.gpkg_connections
-        else:
-            pass
-        if not QgsExpressionContextUtils.projectScope(project).variable('project_gpkg_connections'):
-            QgsExpressionContextUtils.projectScope(project).setVariable('project_gpkg_connections', self.gpkg_connections)
-        else:
-            conn_str = QgsExpressionContextUtils.projectScope(project).variable('project_gpkg_connections')
-            conn_str.append(self.gpkg_connections)
+            for item in self.gpkg_connections:
+                conn = md.connections()[item]
+                path = conn.uri()
+                conn_str = conn_str + item + ";" + path + ";"
+            # error happening here - why is it not writing this variable correctly?
             QgsExpressionContextUtils.projectScope(project).setVariable('project_gpkg_connections', conn_str)
+        else:
+            QgsExpressionContextUtils.projectScope(project).setVariable('project_gpkg_connections', "")
+        project.write()
 
     def getValues(self, dialog):
         if dialog.filename:
