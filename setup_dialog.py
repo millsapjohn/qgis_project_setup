@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QPushButton, QLabel
 from PyQt5.QtGui import QIcon
 from qgis.utils import iface
 
+
 class SetupDialog(QDialog):
     def __init__(self, gpkg_path, home_path, curr_sources):
         super().__init__()
@@ -129,15 +130,16 @@ class SetupDialog(QDialog):
                             self.gpkg_location_label,
                             self.gpkg_location_box,
                             self.gpkg_location_button,
-                            self.proj_num_label, 
-                            self.proj_num_box, 
-                            self.proj_name_label, 
-                            self.proj_name_box, 
-                            self.loc_label, 
-                            self.loc_box, 
-                            self.client_label, 
+                            self.proj_num_label,
+                            self.proj_num_box,
+                            self.proj_name_label,
+                            self.proj_name_box,
+                            self.loc_label,
+                            self.loc_box,
+                            self.client_label,
                             self.client_box,
                             ]
+
     # get save location for overall save file
     def getSaveFile(self):
         self.filename_dialog = QFileDialog()
