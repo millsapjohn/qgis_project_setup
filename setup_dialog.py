@@ -92,6 +92,18 @@ class SetupDialog(QDialog):
         self.addr_box = QLineEdit()
         self.layout.addWidget(self.addr_box)
 
+        # designed by UI elements
+        self.des_by_label = QLabel('Designed By: ')
+        self.layout.addWidget(self.des_by_label)
+        self.des_by_box = QLineEdit()
+        self.layout.addWidget(self.des_by_box)
+
+        # reviewed by UI elements
+        self.rev_by_label = QLabel('Reviewed By: ')
+        self.layout.addWidget(self.rev_by_label)
+        self.rev_by_box = QLineEdit()
+        self.layout.addWidget(self.rev_by_box)
+
         # data sources UI elements
         self.source_label = QLabel('Data Sources: ')
         self.layout.addWidget(self.source_label)
@@ -146,6 +158,10 @@ class SetupDialog(QDialog):
                             self.client_box,
                             self.addr_label,
                             self.addr_box,
+                            self.des_by_label,
+                            self.des_by_box,
+                            self.rev_by_label,
+                            self.rev_by_box,
                             ]
 
     # get save location for overall save file
@@ -196,6 +212,8 @@ class SetupDialog(QDialog):
         self.loc = self.loc_box.text()
         self.client = self.client_box.text()
         self.addr = self.addr_box.text()
+        self.des_by = self.des_by_box.text()
+        self.rev_by = self.rev_by_box.text()
         self.sources = ""
         for i in range(self.source_list_box.count()):
             if self.source_list_box.item(i).text() != "":

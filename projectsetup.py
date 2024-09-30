@@ -141,6 +141,14 @@ class ProjectSetupPlugin:
             self.sources = dialog.sources
         else:
             self.sources = ""
+        if hasattr(dialog, 'des_by'):
+            self.des_by = dialog.des_by
+        else:
+            self.des_by = ""
+        if hasattr(dialog, 'rev_by'):
+            self.rev_by = dialog.rev_by
+        else:
+            self.rev_by = ""
         if hasattr(dialog, 'gpkg_location'):
             self.gpkg_location = dialog.gpkg_location
         else:
@@ -174,8 +182,12 @@ class ProjectSetupPlugin:
             QgsExpressionContextUtils.setProjectVariable(project, 'project_location', self.loc)
         if self.addr:
             QgsExpressionContextUtils.setProjectVariable(project, 'project_address', self.addr)
+        if self.des_by:
+            QgsExpressionContextUtils.setProjectVariable(project, 'designed_by', self.des_by)
+        if self.rev_by:
+            QgsExpressionContextUtils.setProjectVariable(project, 'reviewed_by', self.rev_by)
         if self.sources:
-                QgsExpressionContextUtils.setProjectVariable(project, 'project_sources', self.sources)
+            QgsExpressionContextUtils.setProjectVariable(project, 'project_sources', self.sources)
         project.write()
 
     def setSources(self):
