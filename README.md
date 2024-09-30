@@ -14,6 +14,9 @@ click the first option ("Project Setup...") to begin the process, and enter valu
 - project name
 - project client
 - project location
+- project address
+- designed by
+- reviewed by
 - project datasources
 
 # GeoPackage Templates
@@ -23,7 +26,8 @@ Optionally, you can specify a default location to look for templates, by setting
 called "gpkg_path" (not currently a part of the plugin, you'll need to set this yourself). If this variable
 is not set, QGIS will start in your home directory.<br>
 
-The plugin will rename the templates by prepending the project number to the front of the GeoPackage name.
+The plugin will rename the templates by prepending the project number to the front of the GeoPackage name. <br>
+There is one special case hard-coded into the plugin, for a GeoPackage named "Blank.gpkg"; a file with this name will be renamed either "{project number}.gpkg", or "_.gpkg" if a project number isn't specified. The intent with this setup is to allow for setups where you have, for example, a template for layers related to a hydrologic analysis, "hydro.gpkg", which would be saved as "001.001_hydro.gpkg", as well as a blank catch-all GeoPackage just called "001.001.gpkg."
 
 # Project DataSources
 
