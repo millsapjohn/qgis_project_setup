@@ -200,8 +200,14 @@ class ProjectSetupPlugin:
         md = QgsProviderRegistry.instance().providerMetadata('ogr')
         for template in self.gpkg_templates:
             basename = os.path.basename(template)
-            if self.proj_num:
-                basename = self.proj_num + "_" + basename
+            if basename == "Blank.gpkg":
+                if self.proj_num:
+                    basename = f"{self.proj_num}.gpkg"
+                else:
+                    basename = "_.gpkg"
+            else:
+                if self.proj_num:
+                    basename = self.proj_num + "_" + basename
             filename = os.path.join(self.gpkg_location, basename)
             copy(template, filename)
             layer = [l.GetName() for l in ogr.Open(filename)][0]
