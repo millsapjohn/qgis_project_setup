@@ -1,7 +1,7 @@
 [general]
 name=Project Setup
 description=sets up a QGIS project to my personal specs.
-about=Setup includes setting project variables, Kart repos, and accessing template geopackages.
+about=Setup includes setting project variables and accessing template geopackages.
 version=0.8
 qgisMinimumVersion=3.0
 tracker=https://github.com/millsapjohn/qgis_project_setup/issues
