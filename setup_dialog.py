@@ -176,7 +176,7 @@ class SetupDialog(QDialog):
         self.gpkg_templates = self.template_dialog.getOpenFileNames(self, 'Select GeoPackage Template(s):', self.gpkg_path, 'GeoPackages (*.gpkg)')[0]
         self.gpkg_template_location_box.setText(str(self.gpkg_templates))
 
-    # slot to control the visibility of gpkg UI elements
+    # slot to control the visibility of gpkg template UI elements
     def setGpkgVisibility(self, state):
         enabled = state == 2
         self.gpkg_template_location_box.setEnabled(enabled)
