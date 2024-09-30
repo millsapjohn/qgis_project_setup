@@ -56,7 +56,7 @@ class ProjectSetupPlugin:
         dialog = SetupDialog(self.gpkg_path, self.home_path, curr_sources)
         dialog.exec()
         if dialog.success == True:
-            if not dialog.filename:
+            if not hasattr(dialog, 'filename'):
                 iface.messageBar().pushMessage('No filename specified')
             elif dialog.gpkg_templates and not dialog.gpkg_location:
                 iface.messageBar().pushMessage('No GeoPackage save location specified')
