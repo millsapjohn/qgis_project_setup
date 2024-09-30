@@ -86,6 +86,12 @@ class SetupDialog(QDialog):
         self.loc_box = QLineEdit()
         self.layout.addWidget(self.loc_box)
 
+        # project address UI elements
+        self.addr_label = QLabel('Project Address: ')
+        self.layout.addWidget(self.addr_label)
+        self.addr_box = QLineEdit()
+        self.layout.addWidget(self.addr_box)
+
         # data sources UI elements
         self.source_label = QLabel('Data Sources: ')
         self.layout.addWidget(self.source_label)
@@ -138,6 +144,8 @@ class SetupDialog(QDialog):
                             self.loc_box,
                             self.client_label,
                             self.client_box,
+                            self.addr_label,
+                            self.addr_box,
                             ]
 
     # get save location for overall save file
@@ -187,6 +195,7 @@ class SetupDialog(QDialog):
         self.proj_name = self.proj_name_box.text()
         self.loc = self.loc_box.text()
         self.client = self.client_box.text()
+        self.addr = self.addr_box.text()
         self.sources = ""
         for i in range(self.source_list_box.count()):
             if self.source_list_box.item(i).text() != "":

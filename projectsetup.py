@@ -58,7 +58,7 @@ class ProjectSetupPlugin:
         if dialog.success == True:
             if not hasattr(dialog, 'filename'):
                 iface.messageBar().pushMessage('No filename specified')
-            elif dialog.gpkg_templates and not dialog.gpkg_location:
+            elif hasattr(dialog, 'gpkg_templates') and not hasattr(dialog, 'gpkg_location'):
                 iface.messageBar().pushMessage('No GeoPackage save location specified')
             else:
                 self.getValues(dialog)
@@ -114,25 +114,44 @@ class ProjectSetupPlugin:
             QgsExpressionContextUtils.setProjectVariable(project, 'project_gpkg_connections', self.conn_str)
 
     def getValues(self, dialog):
-        if dialog.filename:
+        if hasattr(dialog, 'filename'):
             self.filename = dialog.filename
-        if dialog.proj_num:
+        else:
+            self.filename = ""
+        if hasattr(dialog, 'proj_num'):
             self.proj_num = dialog.proj_num
-        if dialog.proj_name:
+        else:
+            self.proj_num = ""
+        if hasattr(dialog, 'proj_name'):
             self.proj_name = dialog.proj_name
-        if dialog.client:
+        else:
+            self.proj_name = ""
+        if hasattr(dialog, 'client'):
             self.client = dialog.client
-        if dialog.loc:
+        else: self.client = ""
+        if hasattr(dialog, 'loc'):
             self.loc = dialog.loc
-        if dialog.sources:
+        else:
+            self.loc = dialog.loc
+        if hasattr(dialog, 'addr'):
+            self.addr = dialog.addr
+        else:
+            self.addr = ""
+        if hasattr(dialog, 'sources'):
             self.sources = dialog.sources
-        if dialog.gpkg_location:
+        else:
+            self.sources = ""
+        if hasattr(dialog, 'gpkg_location'):
             self.gpkg_location = dialog.gpkg_location
-        if dialog.gpkg_templates:
+        else:
+            self.gpkg_location = ""
+        if hasattr(dialog, 'gpkg_templates'):
             self.gpkg_templates = dialog.gpkg_templates
+        else:
+            self.gpkg_templates = ""
 
     def getSources(self, dialog):
-        if dialog.sources:
+        if hasattr(dialog, 'sources'):
             self.sources = dialog.sources
 
     def setVariables(self):
@@ -153,6 +172,8 @@ class ProjectSetupPlugin:
             QgsExpressionContextUtils.setProjectVariable(project, 'project_client', self.client)
         if self.loc:
             QgsExpressionContextUtils.setProjectVariable(project, 'project_location', self.loc)
+        if self.addr:
+            QgsExpressionContextUtils.setProjectVariable(project, 'project_address', self.addr)
         if self.sources:
                 QgsExpressionContextUtils.setProjectVariable(project, 'project_sources', self.sources)
         project.write()
