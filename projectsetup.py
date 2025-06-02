@@ -1,8 +1,11 @@
 import os
 from shutil import copy
 from pathlib import Path
-from PyQt5.QtWidgets import QAction
-from PyQt5.QtGui import QIcon
+try:
+    from qgis.PyQt.QtWidgets import QAction
+except ImportError:
+    from qgis.PyQt.QtGui import QAction
+from qgis.PyQt.QtGui import QIcon
 from qgis.utils import iface
 from qgis.core import QgsApplication, QgsProject, QgsExpressionContextUtils, QgsProviderRegistry, QgsVectorLayer
 from osgeo import ogr

@@ -1,5 +1,5 @@
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QPushButton, QLabel, QListWidget, QHBoxLayout, QFileDialog, QCheckBox
-from PyQt5.QtGui import QIcon
+from qgis.PyQt.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QPushButton, QLabel, QListWidget, QHBoxLayout, QFileDialog, QCheckBox
+from qgis.PyQt.QtGui import QIcon
 from qgis.utils import iface
 
 
@@ -32,7 +32,7 @@ class SetupDialog(QDialog):
         # checkbox to control other geopackage UI elements
         self.gpkg_template_checkbox = QCheckBox('Import Template GeoPackages?')
         self.layout.addWidget(self.gpkg_template_checkbox)
-        self.gpkg_template_checkbox.stateChanged.connect(self.setGpkgVisibility)
+        self.gpkg_template_checkbox.checkStateChanged.connect(self.setGpkgVisibility)
 
         # set overall gpkg layout, will contain other sub layouts
         self.gpkg_layout = QVBoxLayout()

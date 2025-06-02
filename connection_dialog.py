@@ -1,6 +1,6 @@
 from qgis.utils import iface
-from PyQt5.QtWidgets import QDialog, QListWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel
-from PyQt5.QtGui import QIcon
+from qgis.PyQt.QtWidgets import QDialog, QListWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel
+from qgis.PyQt.QtGui import QIcon
 
 class ConnectionDialog(QDialog):
     def __init__(self, curr_conn, saved_conn):
