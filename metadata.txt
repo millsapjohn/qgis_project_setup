@@ -4,6 +4,7 @@ description=set up project variables, default geopackages, manage connections.
 about=Setup includes setting project variables and accessing template geopackages.
 version=1.0
 qgisMinimumVersion=3.0
+qgisMaximumVersion=4.99
 tracker=https://github.com/millsapjohn/qgis_project_setup/issues
 repository=https://github.com/millsapjohn/qgis_project_setup
 homepage=https://github.com/millsapjohn/qgis_project_setup
