@@ -2,7 +2,7 @@
 name=Project Setup
 description=set up project variables, default geopackages, manage connections.
 about=Setup includes setting project variables and accessing template geopackages.
-version=1.0
+version=1.1
 qgisMinimumVersion=3.0
 qgisMaximumVersion=4.99
 tracker=https://github.com/millsapjohn/qgis_project_setup/issues
@@ -14,6 +14,7 @@ icon=':/qtproject.org/qtgradienteditor/images/edit.png'
 supportsQt6=True
 
 changelog=
+	Version 1.1 2026-03-11 - updated metadata
 	Version 1.0 2025-06-02 - ported to Qt6
 
 deprecated=False
